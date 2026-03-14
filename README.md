@@ -50,7 +50,35 @@ pod install
 ⌘U (command + U)
 ```
 ## How to Gather Test case coverage
-* Open the Test scheme 
+* Open the Test scheme
 * In the Options tab, and check the Code Coverage checkbox
 * After this each time test cases runs. it will generate the code coverage report
 * Code coverage report can be view in Report Navigator(⌘9)
+
+## Test Coverage
+
+Unit tests cover all three Clean Architecture layers:
+
+```swift
+// Domain — Use Case test with mock repository
+func testFetchCurrentWeatherSuccess() async throws {
+    let mockRepo = MockWeatherRepository()
+    let useCase = DefaultWeatherUseCase(repository: mockRepo)
+    let result = try await useCase.fetchCurrentWeather(query: "Edmonton")
+    XCTAssertNotNil(result)
+}
+
+// Presentation — ViewModel test with mock use case
+func testViewModelFetchUpdatesState() async {
+    let vm = DefaultCurrentWeatherViewModel(weatherUseCase: mockUseCase)
+    vm.didFetch()
+    // Assert currentWeather is populated after async fetch
+}
+
+// Infrastructure — NetworkService with mock session
+func testNetworkServiceReturnsData() async throws {
+    let service = DefaultNetworkService(config: mockConfig, sessionManager: mockSession)
+    let data = try await service.request(endpoint: mockEndpoint)
+    XCTAssertNotNil(data)
+}
+```

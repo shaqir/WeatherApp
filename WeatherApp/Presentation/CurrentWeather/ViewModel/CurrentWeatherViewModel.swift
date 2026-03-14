@@ -22,20 +22,24 @@ final class DefaultCurrentWeatherViewModel: CurrentWeatherViewModel {
     @Published var showError: Bool = false
 
     private var weatherUseCase: WeatherUseCase
+    private let locationQuery: String
 
     var currentErrorMessage: String?
 
-    /// Initilise with any type confirming WeatherUseCase protocol
-    /// - Parameter weatherUseCase: WeatherUseCase
-    init(weatherUseCase: WeatherUseCase) {
+    /// Initialise with any type conforming to WeatherUseCase protocol
+    /// - Parameters:
+    ///   - weatherUseCase: WeatherUseCase
+    ///   - locationQuery: Location string for weather lookup (default: Edmonton, AB, Canada)
+    init(weatherUseCase: WeatherUseCase, locationQuery: String = "Edmonton, AB, Canada") {
         self.weatherUseCase = weatherUseCase
+        self.locationQuery = locationQuery
     }
 
     /// Fetch current weather and forecast
     func didFetch() {
         Task {
             do {
-                let weather = try await weatherUseCase.fetchCurrentWeather(query: "Edmonton, AB, Canada")
+                let weather = try await weatherUseCase.fetchCurrentWeather(query: locationQuery)
                 await MainActor.run { [weather] in
                     currentWeather = weather
                 }
